@@ -50,8 +50,8 @@ export function generateStaticParams() {
     for (const moduleSlug of fnbModules) slugs.add(`fnb/${subIndustry}/${moduleSlug}`);
   }
 
-  const educationModules = ["dashboard", "courses", "assignments", "attendance", "gradebook", "groups", "locations", "logbook", "reports", "requests", "documents", "approvals", "billing", "settings"];
-  for (const subIndustry of ["lms", "kkn", "academic"]) {
+  const educationModules = ["dashboard", "enrollment", "classes", "grades", "attendance", "lms", "projects", "cohorts", "mentorship", "schedules", "invoicing", "reports", "exams", "certificates", "trainings", "trainees", "skill-tracking", "settings"];
+  for (const subIndustry of ["school-campus", "bootcamp", "tutoring", "language-course", "training-center"]) {
     for (const moduleSlug of educationModules) slugs.add(`education-and-courses/${subIndustry}/${moduleSlug}`);
   }
   

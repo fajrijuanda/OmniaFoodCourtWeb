@@ -1,15 +1,17 @@
-import { BookOpen, MapPin, ShieldCheck, Layers3, ClipboardList, CalendarCheck2, FileCheck2, UsersRound, Network, NotebookTabs, FileText, CheckCircle2, PenLine, Clock3, CreditCard, LayoutDashboard } from "lucide-react";
+import { BookOpen, MapPin, ShieldCheck, Layers3, ClipboardList, CalendarCheck2, FileCheck2, UsersRound, Network, NotebookTabs, FileText, CheckCircle2, PenLine, Clock3, CreditCard, LayoutDashboard, Presentation, Target, Award, Milestone, GraduationCap } from "lucide-react";
 
-export type TierLevel = "Starter" | "Growth" | "Pro" | "Enterprise";
+export type TierLevel = "Starter" | "Growth" | "Pro" | "Enterprise" | "Business";
 
 const tierHierarchy = {
   "Starter": 1,
   "Growth": 2,
   "Pro": 3,
+  "Business": 3,
   "Enterprise": 4,
   "starter": 1,
   "growth": 2,
   "pro": 3,
+  "business": 3,
   "enterprise": 4,
 };
 
@@ -34,37 +36,59 @@ export function hasAccess(currentTier: string, requiredTier: TierLevel): boolean
 }
 
 export const educationSubIndustries: Record<string, EducationSubIndustryConfig> = {
-  "lms": {
-    id: "lms",
-    name: "E-Learning (LMS)",
+  "school-campus": {
+    id: "school-campus",
+    name: "School / Campus",
     modules: [
-      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan aktivitas E-Learning." },
-      { id: "courses", label: "Mata Kuliah", icon: Layers3, minTier: "Starter", description: "Kelola kelas, jadwal, dan silabus." },
-      { id: "assignments", label: "Tugas & Ujian", icon: ClipboardList, minTier: "Starter", description: "Daftar tugas dan status pengumpulan." },
-      { id: "attendance", label: "Presensi Mahasiswa", icon: CalendarCheck2, minTier: "Starter", description: "Validasi kehadiran kelas." },
-      { id: "gradebook", label: "Buku Nilai", icon: FileCheck2, minTier: "Growth", description: "Rekapitulasi komponen nilai mahasiswa." },
+      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan aktivitas akademik." },
+      { id: "enrollment", label: "Penerimaan Siswa", icon: UsersRound, minTier: "Starter", description: "Sistem penerimaan siswa/mahasiswa baru." },
+      { id: "classes", label: "Manajemen Kelas", icon: Layers3, minTier: "Starter", description: "Kelola jadwal, ruangan, dan kelas." },
+      { id: "grades", label: "Nilai & Rapor", icon: FileCheck2, minTier: "Growth", description: "Rekapitulasi komponen nilai siswa." },
+      { id: "attendance", label: "Presensi", icon: CalendarCheck2, minTier: "Starter", description: "Validasi kehadiran siswa." },
     ]
   },
-  "kkn": {
-    id: "kkn",
-    name: "KKN & Fieldwork",
+  "bootcamp": {
+    id: "bootcamp",
+    name: "Bootcamp",
     modules: [
-      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan aktivitas KKN." },
-      { id: "groups", label: "Kelompok KKN", icon: UsersRound, minTier: "Starter", description: "Daftar kelompok, anggota, dan DPL." },
-      { id: "locations", label: "Lokasi Plotting", icon: Network, minTier: "Starter", description: "Pemetaan wilayah dan kuota desa." },
-      { id: "logbook", label: "Logbook Harian", icon: NotebookTabs, minTier: "Starter", description: "Jurnal kegiatan harian mahasiswa." },
-      { id: "reports", label: "Laporan Akhir", icon: FileText, minTier: "Growth", description: "Review dan penilaian laporan akhir." },
+      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan progress bootcamp." },
+      { id: "lms", label: "Modul LMS", icon: BookOpen, minTier: "Starter", description: "Akses materi dan video pembelajaran." },
+      { id: "projects", label: "Tugas & Project", icon: ClipboardList, minTier: "Starter", description: "Submission project akhir dan review." },
+      { id: "cohorts", label: "Manajemen Cohort", icon: Network, minTier: "Growth", description: "Kelola batch dan kelompok belajar." },
+      { id: "mentorship", label: "Mentorship", icon: UsersRound, minTier: "Growth", description: "Sesi bimbingan 1-on-1." },
     ]
   },
-  "academic": {
-    id: "academic",
-    name: "Layanan Akademik",
+  "tutoring": {
+    id: "tutoring",
+    name: "Tutoring",
     modules: [
-      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan layanan akademik." },
-      { id: "requests", label: "Antrean Pengajuan", icon: PenLine, minTier: "Starter", description: "Daftar permohonan mahasiswa (SIPT)." },
-      { id: "documents", label: "Repositori Dokumen", icon: FileText, minTier: "Starter", description: "Arsip surat dan transkrip." },
-      { id: "approvals", label: "Inbox Approval", icon: CheckCircle2, minTier: "Growth", description: "Persetujuan berjenjang Kaprodi/Dekan." },
-      { id: "billing", label: "Kasir & Billing", icon: CreditCard, minTier: "Growth", description: "Invoice UKT dan denda." },
+      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan jadwal tutor." },
+      { id: "schedules", label: "Jadwal Kelas", icon: Clock3, minTier: "Starter", description: "Penjadwalan les dan private." },
+      { id: "attendance", label: "Absensi", icon: CalendarCheck2, minTier: "Starter", description: "Kehadiran siswa dan tutor." },
+      { id: "invoicing", label: "Penagihan", icon: CreditCard, minTier: "Growth", description: "Invoice untuk paket bimbingan." },
+      { id: "reports", label: "Laporan Siswa", icon: FileText, minTier: "Starter", description: "Laporan perkembangan siswa." },
+    ]
+  },
+  "language-course": {
+    id: "language-course",
+    name: "Language Course",
+    modules: [
+      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Overview kursus bahasa." },
+      { id: "classes", label: "Kelas Bahasa", icon: Presentation, minTier: "Starter", description: "Materi level pemula hingga mahir." },
+      { id: "attendance", label: "Absensi", icon: CalendarCheck2, minTier: "Starter", description: "Rekap kehadiran pertemuan." },
+      { id: "exams", label: "Ujian Placement", icon: Target, minTier: "Growth", description: "Ujian penentuan level bahasa." },
+      { id: "certificates", label: "Sertifikat", icon: Award, minTier: "Starter", description: "Penerbitan sertifikat kelulusan." },
+    ]
+  },
+  "training-center": {
+    id: "training-center",
+    name: "Training Center",
+    modules: [
+      { id: "dashboard", label: "Overview", icon: LayoutDashboard, minTier: "Starter", description: "Ringkasan pelatihan korporat." },
+      { id: "trainings", label: "Modul Pelatihan", icon: Milestone, minTier: "Starter", description: "Materi dan silabus pelatihan." },
+      { id: "trainees", label: "Peserta Training", icon: UsersRound, minTier: "Starter", description: "Daftar peserta dari berbagai divisi/klien." },
+      { id: "certificates", label: "Sertifikasi", icon: Award, minTier: "Starter", description: "Sertifikat kelulusan training." },
+      { id: "skill-tracking", label: "Skill Tracking", icon: GraduationCap, minTier: "Growth", description: "Evaluasi peningatan skill peserta." },
     ]
   }
 };

@@ -134,7 +134,7 @@ export const segmentIconMap: Record<string, LucideIcon> = {
   "Veterinary Clinic": Activity,
   Pharmacy: Pill,
   Apotek: Pill,
-  Minimarket: ShoppingBasket,
+  Retail: ShoppingBasket,
   "Hardware Store": Hammer,
   "Toko Bangunan": Hammer,
   "Fashion Store": Shirt,
@@ -233,10 +233,10 @@ export function getSegmentIcon(name: string, iconKey?: string | null) {
 export const getSegmentPage = (segmentName: string): PortalPage => {
   const segmentPageMap: Record<string, PortalPage> = {
     HRIS: "hris",
-    "E-Learning (LMS)": "education-dashboard",
-    "KKN & Fieldwork": "education-dashboard",
-    "Layanan Akademik": "education-dashboard",
-    "Campus Management System": "education-dashboard",
+    "E-Learning (LMS)": "education-school-dashboard",
+    "KKN & Fieldwork": "education-school-dashboard",
+    "Layanan Akademik": "education-school-dashboard",
+    "Campus Management System": "education-school-dashboard",
     Cafe: "fnb-cafe",
     Restaurant: "fnb-restaurant",
     Restoran: "fnb-restaurant",
@@ -266,6 +266,7 @@ export function getSpecializedPortalPage(industry: Pick<PortalCatalogIndustry, "
   const subName = subIndustry?.name ?? "";
   const isFnbIndustry = ["food-and-beverage", "fb-kuliner", "fnb"].includes(industrySlug) || industrySlug.startsWith("fb-") || industrySlug.includes("restoran-cafe");
   const isProfessionalIndustry = ["professional-services", "jasa-profesional"].includes(industrySlug);
+  const isRetailIndustry = industrySlug === "retail-and-stores" || industrySlug.includes("retail");
   const isPublicIndustry = ["public-services", "layanan-publik"].includes(industrySlug) || industrySlug.includes("layanan-publik");
   const isCommerceIndustry = ["ecommerce-and-marketplaces", "e-commerce-and-marketplace", "ecommerce"].includes(industrySlug)
     || industrySlug.includes("commerce")
@@ -288,11 +289,14 @@ export function getSpecializedPortalPage(industry: Pick<PortalCatalogIndustry, "
   }
 
   if ((isProfessionalIndustry || industrySlug === "internal-operations") && (subSlug === "hris" || subSlug.endsWith("-hris") || subName === "HRIS" || subName === "Omnia HRIS")) return "hris";
+  if (isRetailIndustry && (subSlug === "retail-store" || subName === "Retail" || subName === "Retail Toko")) return "sub-industry";
   if (isEducationIndustry) {
-    if (subSlug === "lms" || subName === "E-Learning (LMS)") return "education-lms";
-    if (subSlug === "kkn" || subName === "KKN & Fieldwork") return "education-kkn";
-    if (subSlug === "academic" || subName === "Layanan Akademik") return "education-academic";
-    return "education-dashboard"; // fallback
+    if (subSlug === "school-campus" || subName === "School / Campus") return "education-school-campus";
+    if (subSlug === "bootcamp" || subName === "Bootcamp") return "education-bootcamp";
+    if (subSlug === "tutoring" || subName === "Tutoring") return "education-tutoring";
+    if (subSlug === "language-course" || subName === "Language Course") return "education-language-course";
+    if (subSlug === "training-center" || subName === "Training Center") return "education-training-center";
+    return "education-school-dashboard"; // fallback
   }
   if (isPublicIndustry && (subSlug === "church" || subSlug.endsWith("-church") || subName === "Church")) return "church-dashboard";
   if (isCommerceIndustry && (subSlug === "social-commerce-intelligence" || subSlug.endsWith("-social-commerce-intelligence") || subName === "Social Commerce Intelligence")) return "social-commerce-intelligence";
@@ -306,13 +310,31 @@ export function getIndustryPortalPath(industry: Pick<PortalCatalogIndustry, "slu
 }
 
 export function getSubIndustryPortalPath(industry: Pick<PortalCatalogIndustry, "slug">, subIndustry: Pick<PortalCatalogSubIndustry, "slug" | "name">) {
+  const isCafe = (industry.slug.includes("fnb") || industry.slug.includes("food")) && (subIndustry.slug === "cafe" || subIndustry.name.toLowerCase() === "cafe");
+  const isHris = subIndustry.slug === "hris" || subIndustry.name === "HRIS" || subIndustry.name === "Omnia HRIS";
+  const isRetail = industry.slug.includes("retail") && (subIndustry.slug.includes("retail") || subIndustry.name.toLowerCase().includes("retail"));
+  const isClinic = (industry.slug.includes("health") || industry.slug.includes("kesehatan")) && (subIndustry.slug.includes("clinic") || subIndustry.slug.includes("klinik") || subIndustry.name.toLowerCase().includes("klinik") || subIndustry.name.toLowerCase().includes("clinic"));
+  const isChurch = industry.slug.includes("public-services") && (subIndustry.slug.includes("church") || subIndustry.name.toLowerCase().includes("gereja"));
+  const isSocialCommerce = subIndustry.slug.includes("social-commerce");
+  const isEducation = industry.slug.includes("education");
+
+  if (isCafe) return process.env.NEXT_PUBLIC_CAFE_URL || "https://omnia-cafe-web.vercel.app";
+  if (isHris) return process.env.NEXT_PUBLIC_HRIS_URL || "https://omnia-hris-web.vercel.app";
+  if (isRetail) return process.env.NEXT_PUBLIC_RETAIL_URL || "https://omnia-retail-web.vercel.app";
+  if (isClinic) return process.env.NEXT_PUBLIC_CLINIC_URL || "https://omnia-clinic-web.vercel.app";
+  if (isChurch) return process.env.NEXT_PUBLIC_CHURCH_URL || "https://omnia-church-web.vercel.app";
+  if (isSocialCommerce) return process.env.NEXT_PUBLIC_SOCIAL_COMMERCE_URL || "https://omnia-social-commerce-web.vercel.app";
+  
   const specialized = getSpecializedPortalPage(industry, subIndustry);
+  if (isEducation && specialized) {
+    if (specialized === "education-school-campus") return process.env.NEXT_PUBLIC_EDUCATION_SCHOOL_URL || "https://omnia-education-school-web.vercel.app";
+    if (specialized === "education-bootcamp") return process.env.NEXT_PUBLIC_EDUCATION_BOOTCAMP_URL || "https://omnia-education-bootcamp-web.vercel.app";
+    if (specialized === "education-tutoring") return process.env.NEXT_PUBLIC_EDUCATION_TUTORING_URL || "https://omnia-education-tutoring-web.vercel.app";
+    if (specialized === "education-language-course") return process.env.NEXT_PUBLIC_EDUCATION_LANGUAGE_URL || "https://omnia-education-language-web.vercel.app";
+    if (specialized === "education-training-center") return process.env.NEXT_PUBLIC_EDUCATION_TRAINING_URL || "https://omnia-education-training-web.vercel.app";
+  }
+  if (specialized === "sub-industry" && (industry.slug === "retail-and-stores" || industry.slug.includes("retail"))) return "/portal/retail-and-stores/retail-store";
   if (specialized === "hris") return `/portal/${industry.slug}/hris`;
-  if (specialized === "education-lms") return "/portal/education-and-courses/e-learning-lms";
-  if (specialized === "education-kkn") return "/portal/education-and-courses/kkn-and-fieldwork";
-  if (specialized === "education-academic") return "/portal/education-and-courses/layanan-akademik";
-  if (specialized === "church-dashboard") return "/portal/public-services/church";
-  if (specialized === "social-commerce-intelligence") return "/portal/ecommerce-and-marketplaces/social-commerce-intelligence";
   if (specialized?.startsWith("fnb-")) {
     const fnbSlug = subIndustry.name === "Restoran" || subIndustry.slug.endsWith("-restoran") ? "restaurant" : subIndustry.name.toLowerCase().replace(/\s+/g, "-");
     return `/portal/fnb/${fnbSlug}`;

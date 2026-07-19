@@ -1,11 +1,11 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, CircleHelp, MoreHorizontal, X, Menu, LayoutDashboard, Settings } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { PortalPage, PortalRole } from "../portalTypes";
-import type { PortalCatalogIndustry } from "../portalCatalog";
+import { getIndustryPalette, type PortalCatalogIndustry } from "../portalCatalog";
 import { PortalSidebar } from "./PortalSidebar";
 import { PortalHeader, type PortalProfile } from "./PortalHeader";
 import type { TenantContextResponse } from "@/lib/api";
@@ -68,6 +68,29 @@ export function PortalLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [signOutOpen, setSignOutOpen] = useState(false);
+
+  useEffect(() => {
+    const activeIndustry = industries.find((industry) => industry.slug === activeIndustrySlug);
+    const palette = isFnbModulePage
+      ? { primary: "#F97316", soft: "#FFF7ED", dark: "#C2410C" }
+      : isHrisContextPage
+        ? { primary: "#3B82F6", soft: "#EFF6FF", dark: "#1D4ED8" }
+        : activeIndustry
+          ? getIndustryPalette(activeIndustry.colorKey)
+          : { primary: "#F97316", soft: "#FFF7ED", dark: "#C2410C" };
+    const roots = [document.documentElement, document.body];
+    roots.forEach((root) => {
+      root.dataset.portalTheme = "industry";
+      root.style.setProperty("--portal-primary", palette.primary);
+      root.style.setProperty("--portal-primary-soft", palette.soft);
+      root.style.setProperty("--portal-primary-dark", palette.dark);
+      root.style.setProperty("--portal-surface", "#ffffff");
+      root.style.setProperty("--portal-text", "#172033");
+      root.style.setProperty("--portal-muted", "#667085");
+      root.style.setProperty("--portal-border", `color-mix(in srgb, ${palette.primary} 14%, #e7edf5)`);
+      root.style.setProperty("--portal-on-primary", "#ffffff");
+    });
+  }, [activeIndustrySlug, industries, isFnbModulePage, isHrisContextPage]);
 
   const moduleSidebarActive = isHrisContextPage || isChurchContextPage || isClinicContextPage || isSocialCommerceContextPage || isEducationContextPage || role === "employee" || isFnbModulePage;
   const wideSidebar = moduleSidebarActive || sidebarExpanded;

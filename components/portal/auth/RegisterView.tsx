@@ -10,6 +10,8 @@ import type { LucideIcon } from "lucide-react";
 import { API_BASE_URL, unwrapApiResponse, type AuthUser } from "@/lib/api";
 import { Capacitor } from "@capacitor/core";
 import { persistAuthSession, setStoredDemoRole, setStoredHrisTier } from "@/lib/mobile/session";
+import { BrandLogo } from "@/components/BrandLogo";
+import { PortalLoadingScreen } from "@/components/portal/ui";
 import { industries } from "@/data/industries";
 import { segmentIconMap } from "../portalCatalog";
 
@@ -266,34 +268,60 @@ export function RegisterView() {
   };
 
   return (
-    <main className="min-h-screen bg-[linear-gradient(135deg,#fff7ed_0%,#f8fafc_50%,#eef2ff_100%)] px-4 py-6 text-slate-950 sm:px-6">
-      <div className="mx-auto grid min-h-[calc(100vh-48px)] max-w-7xl items-center gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="rounded-[28px] bg-[#111111] p-6 text-white shadow-[0_26px_80px_rgba(15,23,42,0.22)] sm:p-8">
-          <Link href="/login" className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-black text-white/80 transition hover:bg-white/15">
-            <ChevronLeft className="h-4 w-4" />
-            {isNative ? "Login" : "Login portal"}
-          </Link>
-          <div className="mt-12 max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-orange-500/15 px-4 py-2 text-sm font-black text-orange-300">
-              <Sparkles className="h-4 w-4" />
-              Trial gratis 3 hari
-            </div>
-            <h1 className="mt-7 text-4xl font-black leading-tight sm:text-6xl">Coba satu sub-industri Omnia.</h1>
-            <p className="mt-5 text-base font-bold leading-8 text-white/62 sm:text-lg">
-              Pilih 1 dari {options.length || 61} sub-industri. Trial dibuat lewat backend, dilindungi anti-bot, dan memakai Tier Starter 3 hari.
-            </p>
-          </div>
-          <div className="mt-10 grid gap-3">
-            {["Validasi anti-bot aktif", "Trial Starter 3 hari", "Akun dan tenant dibuat di backend"].map((item) => (
-              <div key={item} className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-black text-white/78">
-                <CheckCircle2 className="h-5 w-5 text-orange-400" />
-                {item}
-              </div>
-            ))}
-          </div>
-        </section>
+    <main className="portal-theme-scope min-h-screen overflow-hidden bg-[#fff7ed] text-[var(--portal-text)] transition-colors duration-700">
+      {submitting ? <PortalLoadingScreen label="Menyiapkan portal" /> : null}
+      
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.92)_0%,rgba(255,247,237,0.9)_44%,rgba(239,246,255,0.92)_100%)]" />
+      <div className="pointer-events-none absolute left-[8%] top-[10%] hidden h-36 w-36 rounded-full border border-orange-200 bg-white/50 blur-sm lg:block" />
+      <div className="pointer-events-none absolute bottom-[8%] right-[10%] hidden h-44 w-44 rounded-full border border-sky-200 bg-white/50 blur-sm lg:block" />
 
-        <form onSubmit={submit} className="p-5 sm:rounded-[28px] sm:border sm:border-slate-200 sm:bg-white/92 sm:shadow-[0_26px_80px_rgba(15,23,42,0.12)] sm:backdrop-blur sm:p-7">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[118rem] items-start justify-center p-0 sm:p-5 lg:items-center lg:p-6 xl:p-8">
+        <div className="relative w-full overflow-visible rounded-none bg-transparent shadow-none lg:overflow-hidden lg:rounded-[40px] lg:bg-[#101010] lg:shadow-[0_32px_90px_rgba(15,23,42,0.24)]">
+          <div className="absolute inset-x-0 top-0 hidden h-1 bg-[linear-gradient(90deg,#f97316,#38bdf8,#22c55e)] lg:block" />
+          <div className="pointer-events-none absolute left-[20%] top-28 hidden h-72 w-72 rounded-full bg-orange-500/18 blur-3xl lg:block" />
+          <div className="pointer-events-none absolute bottom-20 left-[10%] hidden h-64 w-64 rounded-full bg-sky-500/16 blur-3xl lg:block" />
+
+          <div className="relative grid w-full gap-0 lg:gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <section className="relative hidden min-h-[720px] p-8 text-white lg:block xl:p-14">
+              <Link href="/login" className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-black text-white/80 transition hover:bg-white/15">
+                <ChevronLeft className="h-4 w-4" />
+                {isNative ? "Login" : "Login portal"}
+              </Link>
+              
+              <div className="mt-16 xl:mt-24">
+                <BrandLogo className="h-10 text-white" />
+                <div className="mt-12 max-w-xl">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-black text-white/90">
+                    <Sparkles className="h-4 w-4 text-orange-400" />
+                    Portal Trial
+                  </div>
+                  <h1 className="mt-6 text-4xl font-black leading-[1.15] tracking-tight text-white xl:text-[3.5rem]">
+                    Mulai trial<br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-300">
+                      gratis 3 hari.
+                    </span>
+                  </h1>
+                  <p className="mt-6 text-lg font-bold leading-relaxed text-white/70">
+                    Pilih 1 dari {options.length || 61} sub-industri. Trial dibuat otomatis setelah lolos verifikasi anti-bot dengan Tier Starter aktif.
+                  </p>
+                </div>
+              </div>
+
+              <div className="absolute bottom-8 left-8 right-8 xl:bottom-14 xl:left-14 xl:right-14">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                  {[
+                    { label: "Validasi aktif", icon: CheckCircle2 },
+                    { label: "Tier Starter", icon: CheckCircle2 }
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white/80 backdrop-blur-md">
+                      <item.icon className="h-5 w-5 text-emerald-400" />
+                      {item.label}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+        <form onSubmit={submit} className="p-5 sm:rounded-[28px] sm:border sm:border-slate-200 bg-white lg:bg-white/95 sm:shadow-[0_26px_80px_rgba(15,23,42,0.12)] sm:backdrop-blur sm:p-7 lg:my-6 lg:mr-6 xl:my-8 xl:mr-8">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-500">{isNative ? "Daftar Akun" : "Register Trial"}</p>
           <h2 className="mt-2 text-3xl font-black text-slate-950">{isNative ? "Buat akun Omnia" : "Buka demo frontend"}</h2>
           <p className="mt-2 text-sm font-bold leading-6 text-slate-500">{isNative ? "Daftarkan akun baru untuk mulai menggunakan Omnia." : "Akun trial dibuat melalui API Omnia setelah lolos verifikasi anti-bot."}</p>
@@ -501,7 +529,9 @@ export function RegisterView() {
           </div>
         </form>
       </div>
-    </main>
+    </div>
+  </div>
+</main>
   );
 }
 

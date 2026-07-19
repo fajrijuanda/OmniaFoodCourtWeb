@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Database, Layers3, LayoutDashboard, Lock, LockOpen, Megaphone, ShieldCheck, ShoppingBag, X } from "lucide-react";
+import { ArrowRight, CircleHelp, Database, Layers3, Lock, LockOpen, Megaphone, X } from "lucide-react";
 import { PricingPlanModal } from "@/components/PricingPlanModal";
 import { buildPlans } from "@/components/showcase/pricing";
 import { Panel } from "@/components/portal/ui";
@@ -51,9 +51,8 @@ export function PortalDashboardHome({
         [String(Math.max(0, totalSegments - accessibleSegments)), "saran pembelian"]
       ];
   const mobileHighlights = [
-    { title: role === "developer" ? "Semua Industri" : "HRIS", caption: role === "developer" ? `${industries.length} industri, ${totalSegments} sub-industri` : "Subscription aktif tenant", icon: LayoutDashboard, page: role === "developer" ? "apps" as PortalPage : "hris" as PortalPage, gradient: "from-cyan-500 to-cyan-200", badge: "Katalog" },
     { title: "Promo & Update", caption: role === "developer" ? "Lihat fitur baru dan campaign Omnia terbaru" : "Rekomendasi fitur dan promo untuk workspace kamu", icon: Megaphone, page: "apps" as PortalPage, gradient: "from-violet-500 to-fuchsia-200", badge: "Baru" },
-    { title: role === "developer" ? "Tenant & Access" : "Saran Pembelian", caption: role === "developer" ? "Kelola akun owner dan employee" : `${Math.max(0, totalSegments - accessibleSegments)} sub-industri tersedia`, icon: role === "developer" ? ShieldCheck : ShoppingBag, page: role === "developer" ? "access" as PortalPage : "apps" as PortalPage, gradient: "from-orange-500 to-orange-200", badge: role === "developer" ? "Akses" : "Rekomendasi" }
+    { title: "Panduan & Bantuan", caption: "Temukan panduan penggunaan dan jawaban untuk pertanyaan umum", icon: CircleHelp, page: "faq" as PortalPage, gradient: "from-orange-500 to-orange-200", badge: "Pelajari" }
   ];
 
   return (

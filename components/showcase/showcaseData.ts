@@ -116,7 +116,7 @@ export const segmentPriceOverride: Record<string, string[]> = {
   "Apotek": ["Rp499rb", "Rp999rb", "Rp2jt+", "Mulai Rp5jt"],
 
   // Retail & Toko
-  "Minimarket": ["Rp399rb", "Rp799rb", "Rp1,5jt+", "Mulai Rp5jt"],
+  "Retail": ["Rp399rb", "Rp799rb", "Rp1,5jt+", "Mulai Rp5jt"],
   "Toko Bangunan": ["Rp399rb", "Rp799rb", "Rp1,5jt+", "Mulai Rp5jt"],
   "Fashion Store": ["Rp399rb", "Rp799rb", "Rp1,5jt+", "Mulai Rp5jt"],
   "Toko Elektronik": ["Rp399rb", "Rp799rb", "Rp1,5jt+", "Mulai Rp5jt"],

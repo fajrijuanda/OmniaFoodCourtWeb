@@ -16,6 +16,14 @@ import { ReservationLayout } from "./reservation/ReservationLayout";
 import { BakeryPreOrderLayout } from "./bakery/BakeryPreOrderLayout";
 import { BakeryWholesaleLayout } from "./bakery/BakeryWholesaleLayout";
 import { FnbOperationsLayout } from "./operations/FnbOperationsLayout";
+import { RestaurantSplitBillLayout } from "./restaurant/RestaurantSplitBillLayout";
+import { CloudKitchenOrderHubLayout } from "./cloud-kitchen/CloudKitchenOrderHubLayout";
+import { CloudKitchenMultiBrandLayout } from "./cloud-kitchen/CloudKitchenMultiBrandLayout";
+import { CloudKitchenDeliveryIntegrationLayout } from "./cloud-kitchen/CloudKitchenDeliveryIntegrationLayout";
+import { CloudKitchenDeliveryStatusLayout } from "./cloud-kitchen/CloudKitchenDeliveryStatusLayout";
+import { FoodCourtTenantLayout } from "./food-court/FoodCourtTenantLayout";
+import { BakeryBatchStockLayout } from "./bakery/BakeryBatchStockLayout";
+import { BakeryWasteReportLayout } from "./bakery/BakeryWasteReportLayout";
 import { fnbSubIndustries, hasAccess, FnbModuleConfig } from "./config/subIndustries";
 import { UpgradeModal } from "../../shared/UpgradeModal";
 import { usePathname, useRouter } from "next/navigation";
@@ -380,21 +388,28 @@ export function FnbPortal({ activePage, currentTier }: FnbPortalProps) {
     case "sales-dashboard":
       return <SalesDashboardLayout subIndustryName={subIndustry.name} />;
     case "order-history":
-      return <FnbOperationsLayout moduleKey={activeModuleKey} subIndustryName={subIndustry.name} />;
     case "loyalty":
     case "shift-closing":
+      return <FnbOperationsLayout moduleKey={activeModuleKey} subIndustryName={subIndustry.name} />;
     case "split-bill":
+      return <RestaurantSplitBillLayout subIndustryName={subIndustry.name} />;
     case "batch-stock":
+      return <BakeryBatchStockLayout subIndustryName={subIndustry.name} />;
     case "waste-report":
+      return <BakeryWasteReportLayout subIndustryName={subIndustry.name} />;
     case "order-hub":
+      return <CloudKitchenOrderHubLayout subIndustryName={subIndustry.name} />;
     case "multi-brand":
+      return <CloudKitchenMultiBrandLayout subIndustryName={subIndustry.name} />;
     case "delivery-integration":
+      return <CloudKitchenDeliveryIntegrationLayout subIndustryName={subIndustry.name} />;
     case "delivery-status":
+      return <CloudKitchenDeliveryStatusLayout subIndustryName={subIndustry.name} />;
     case "tenant-management":
     case "tenant-settlement":
     case "promo-rules":
     case "admin-tenant-dashboard":
-      return <FnbOperationsLayout moduleKey={activeModuleKey} subIndustryName={subIndustry.name} />;
+      return <FoodCourtTenantLayout moduleKey={activeModuleKey} subIndustryName={subIndustry.name} />;
     case "settings":
       return <FnbSettingsPage subIndustryName={subIndustry.name} currentTier={currentTier} />;
     default:

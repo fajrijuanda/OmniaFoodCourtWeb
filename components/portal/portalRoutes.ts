@@ -87,10 +87,10 @@ export const portalRouteMap: Record<string, PortalPage> = {
   "ecommerce/social-commerce-intelligence": "social-commerce-intelligence",
   "social-commerce-intelligence": "social-commerce-intelligence",
 
-  "education-and-courses/education": "education-dashboard",
-  "pendidikan-and-kursus/education": "education-dashboard",
-  "education/education": "education-dashboard",
-  "education": "education-dashboard",
+  "education-and-courses/education": "education-school-dashboard",
+  "pendidikan-and-kursus/education": "education-school-dashboard",
+  "education/education": "education-school-dashboard",
+  "education": "education-school-dashboard",
 
   reports: "reports",
   notifications: "notifications",
@@ -167,33 +167,29 @@ const socialCommerceModuleRoutes: Record<string, PortalPage> = {
 };
 
 const educationModuleRoutes: Record<string, PortalPage> = {
-  dashboard: "education-dashboard",
-  lms: "education-lms",
-  courses: "education-courses",
-  schedule: "education-courses",
-  materials: "education-courses",
-  assignments: "education-assignments",
-  attendance: "education-attendance",
-  gradebook: "education-gradebook",
-  kkn: "education-kkn",
-  fieldwork: "education-kkn",
-  "kkn/groups": "education-groups",
-  groups: "education-groups",
-  "kkn/locations": "education-locations",
-  locations: "education-locations",
-  "kkn/logbook": "education-logbook",
-  logbook: "education-logbook",
-  "kkn/reports": "education-reports",
-  reports: "education-reports",
-  "academic": "education-academic",
-  "academic/requests": "education-requests",
-  requests: "education-requests",
-  "academic/documents": "education-documents",
-  documents: "education-documents",
-  "academic/approvals": "education-approvals",
-  approvals: "education-approvals",
-  "academic/billing": "education-billing",
-  billing: "education-billing",
+  // School / Campus
+  dashboard: "education-school-dashboard",
+  enrollment: "education-school-enrollment",
+  classes: "education-school-classes",
+  grades: "education-school-grades",
+  attendance: "education-school-attendance",
+  // Bootcamp
+  lms: "education-bootcamp-lms",
+  projects: "education-bootcamp-projects",
+  cohorts: "education-bootcamp-cohorts",
+  mentorship: "education-bootcamp-mentorship",
+  // Tutoring
+  schedules: "education-tutoring-schedules",
+  invoicing: "education-tutoring-invoicing",
+  reports: "education-tutoring-reports",
+  // Language Course
+  exams: "education-language-exams",
+  certificates: "education-language-certificates",
+  // Training Center
+  trainings: "education-training-trainings",
+  trainees: "education-training-trainees",
+  "skill-tracking": "education-training-skill-tracking",
+  // General
   settings: "education-settings"
 };
 
@@ -216,21 +212,22 @@ export function resolvePortalRoute(slug: string[]): PortalPage {
   const [, standaloneSocialModule] = route.match(/^social-commerce-intelligence\/([^/]+)$/) ?? [];
   if (standaloneSocialModule) return socialCommerceModuleRoutes[standaloneSocialModule] ?? "social-commerce-intelligence";
 
+  const educationSubIndustrySlugs = ["school-campus", "bootcamp", "tutoring", "language-course", "training-center"] as const;
   const educationPrefix = /^(?:education-and-courses|pendidikan-and-kursus|education)\/([^/]+(?:\/.+)?)$/.exec(route);
   if (educationPrefix?.[1]) {
     const matched = educationPrefix[1];
-    if (matched === "lms" || matched === "kkn" || matched === "academic") {
+    if ((educationSubIndustrySlugs as readonly string[]).includes(matched)) {
       return `education-${matched}` as PortalPage;
     }
     const [subIndustry, module] = matched.split('/');
     if (subIndustry && module) {
-      return educationModuleRoutes[module] ?? "education-dashboard";
+      return educationModuleRoutes[module] ?? "education-school-dashboard";
     }
-    return educationModuleRoutes[matched] ?? "education-dashboard";
+    return educationModuleRoutes[matched] ?? "education-school-dashboard";
   }
 
-  const standaloneEducationModule = /^(?:lms|kkn|academic)\/(.+)$/.exec(route);
-  if (standaloneEducationModule?.[1]) return educationModuleRoutes[standaloneEducationModule[1]] ?? "education-dashboard";
+  const standaloneEducationModule = /^(?:school-campus|bootcamp|tutoring|language-course|training-center)\/(.+)$/.exec(route);
+  if (standaloneEducationModule?.[1]) return educationModuleRoutes[standaloneEducationModule[1]] ?? "education-school-dashboard";
 
   if (slug.length === 1) return "industry";
   if (slug.length === 2) return "sub-industry";

@@ -93,22 +93,48 @@ export type PortalPage =
   | "social-intel-alerts"
   | "social-intel-connectors"
   | "social-intel-settings"
-  | "education-lms"
-  | "education-kkn"
-  | "education-academic"
-  | "education-dashboard"
-  | "education-courses"
-  | "education-assignments"
-  | "education-attendance"
-  | "education-gradebook"
-  | "education-groups"
-  | "education-locations"
-  | "education-logbook"
-  | "education-reports"
-  | "education-requests"
-  | "education-documents"
-  | "education-approvals"
-  | "education-billing"
+  // Education & Courses Sub-industries
+  | "education-school-campus"
+  | "education-bootcamp"
+  | "education-tutoring"
+  | "education-language-course"
+  | "education-training-center"
+  
+  // School / Campus
+  | "education-school-dashboard"
+  | "education-school-enrollment"
+  | "education-school-classes"
+  | "education-school-grades"
+  | "education-school-attendance"
+
+  // Bootcamp
+  | "education-bootcamp-dashboard"
+  | "education-bootcamp-lms"
+  | "education-bootcamp-projects"
+  | "education-bootcamp-cohorts"
+  | "education-bootcamp-mentorship"
+
+  // Tutoring
+  | "education-tutoring-dashboard"
+  | "education-tutoring-schedules"
+  | "education-tutoring-attendance"
+  | "education-tutoring-invoicing"
+  | "education-tutoring-reports"
+
+  // Language Course
+  | "education-language-dashboard"
+  | "education-language-classes"
+  | "education-language-attendance"
+  | "education-language-exams"
+  | "education-language-certificates"
+
+  // Training Center
+  | "education-training-dashboard"
+  | "education-training-trainings"
+  | "education-training-trainees"
+  | "education-training-certificates"
+  | "education-training-skill-tracking"
+
   | "education-settings";
 
 export type PortalRole = "developer" | "owner" | "employee";
@@ -210,22 +236,16 @@ export const socialCommerceContextPages = [
 ] as const satisfies readonly PortalPage[];
 
 export const educationModulePages = [
-  "education-lms",
-  "education-kkn",
-  "education-academic",
-  "education-dashboard",
-  "education-courses",
-  "education-assignments",
-  "education-attendance",
-  "education-gradebook",
-  "education-groups",
-  "education-locations",
-  "education-logbook",
-  "education-reports",
-  "education-requests",
-  "education-documents",
-  "education-approvals",
-  "education-billing"
+  "education-school-campus",
+  "education-bootcamp",
+  "education-tutoring",
+  "education-language-course",
+  "education-training-center",
+  "education-school-dashboard", "education-school-enrollment", "education-school-classes", "education-school-grades", "education-school-attendance",
+  "education-bootcamp-dashboard", "education-bootcamp-lms", "education-bootcamp-projects", "education-bootcamp-cohorts", "education-bootcamp-mentorship",
+  "education-tutoring-dashboard", "education-tutoring-schedules", "education-tutoring-attendance", "education-tutoring-invoicing", "education-tutoring-reports",
+  "education-language-dashboard", "education-language-classes", "education-language-attendance", "education-language-exams", "education-language-certificates",
+  "education-training-dashboard", "education-training-trainings", "education-training-trainees", "education-training-certificates", "education-training-skill-tracking"
 ] as const satisfies readonly PortalPage[];
 
 export const educationContextPages = [
@@ -328,23 +348,43 @@ export const portalPageTitles: Partial<Record<PortalPage, string>> = {
   "social-intel-alerts": "Alert Center",
   "social-intel-connectors": "Data Connectors",
   "social-intel-settings": "Social Intel Settings",
-  "education-lms": "LMS & E-Learning",
-  "education-kkn": "KKN & Fieldwork",
-  "education-academic": "Layanan Akademik",
-  "education-dashboard": "Overview",
-  "education-courses": "Mata Kuliah",
-  "education-assignments": "Tugas & Ujian",
-  "education-attendance": "Presensi Mahasiswa",
-  "education-gradebook": "Buku Nilai",
-  "education-groups": "Kelompok KKN",
-  "education-locations": "Lokasi Plotting",
-  "education-logbook": "Logbook Harian",
-  "education-reports": "Laporan Akhir",
-  "education-requests": "Antrean Pengajuan",
-  "education-documents": "Repositori Dokumen",
-  "education-approvals": "Inbox Approval",
-  "education-billing": "Kasir & Billing",
-  "education-settings": "Campus Settings"
+  "education-school-campus": "School / Campus",
+  "education-bootcamp": "Bootcamp",
+  "education-tutoring": "Tutoring",
+  "education-language-course": "Language Course",
+  "education-training-center": "Training Center",
+
+  "education-school-dashboard": "Overview",
+  "education-school-enrollment": "Penerimaan Siswa",
+  "education-school-classes": "Manajemen Kelas",
+  "education-school-grades": "Nilai & Rapor",
+  "education-school-attendance": "Presensi",
+
+  "education-bootcamp-dashboard": "Overview",
+  "education-bootcamp-lms": "Modul LMS",
+  "education-bootcamp-projects": "Tugas & Project",
+  "education-bootcamp-cohorts": "Manajemen Cohort",
+  "education-bootcamp-mentorship": "Mentorship",
+
+  "education-tutoring-dashboard": "Overview",
+  "education-tutoring-schedules": "Jadwal Kelas",
+  "education-tutoring-attendance": "Absensi",
+  "education-tutoring-invoicing": "Penagihan",
+  "education-tutoring-reports": "Laporan Siswa",
+
+  "education-language-dashboard": "Overview",
+  "education-language-classes": "Kelas Bahasa",
+  "education-language-attendance": "Absensi",
+  "education-language-exams": "Ujian Placement",
+  "education-language-certificates": "Sertifikat",
+
+  "education-training-dashboard": "Overview",
+  "education-training-trainings": "Modul Pelatihan",
+  "education-training-trainees": "Peserta Training",
+  "education-training-certificates": "Sertifikasi",
+  "education-training-skill-tracking": "Skill Tracking",
+
+  "education-settings": "Education Settings"
 };
 
 export const portalPagePaths: Record<PortalPage, string> = {
@@ -442,21 +482,41 @@ export const portalPagePaths: Record<PortalPage, string> = {
   "social-intel-alerts": "/portal/ecommerce-and-marketplaces/social-commerce-intelligence/alerts",
   "social-intel-connectors": "/portal/ecommerce-and-marketplaces/social-commerce-intelligence/connectors",
   "social-intel-settings": "/portal/ecommerce-and-marketplaces/social-commerce-intelligence/settings",
-  "education-lms": "/portal/education-and-courses/lms",
-  "education-kkn": "/portal/education-and-courses/kkn",
-  "education-academic": "/portal/education-and-courses/academic",
-  "education-dashboard": "/portal/education-and-courses/lms/dashboard",
-  "education-courses": "/portal/education-and-courses/lms/courses",
-  "education-assignments": "/portal/education-and-courses/lms/assignments",
-  "education-attendance": "/portal/education-and-courses/lms/attendance",
-  "education-gradebook": "/portal/education-and-courses/lms/gradebook",
-  "education-groups": "/portal/education-and-courses/kkn/groups",
-  "education-locations": "/portal/education-and-courses/kkn/locations",
-  "education-logbook": "/portal/education-and-courses/kkn/logbook",
-  "education-reports": "/portal/education-and-courses/kkn/reports",
-  "education-requests": "/portal/education-and-courses/academic/requests",
-  "education-documents": "/portal/education-and-courses/academic/documents",
-  "education-approvals": "/portal/education-and-courses/academic/approvals",
-  "education-billing": "/portal/education-and-courses/academic/billing",
+  "education-school-campus": "/portal/education-and-courses/school-campus",
+  "education-bootcamp": "/portal/education-and-courses/bootcamp",
+  "education-tutoring": "/portal/education-and-courses/tutoring",
+  "education-language-course": "/portal/education-and-courses/language-course",
+  "education-training-center": "/portal/education-and-courses/training-center",
+
+  "education-school-dashboard": "/portal/education-and-courses/school-campus/dashboard",
+  "education-school-enrollment": "/portal/education-and-courses/school-campus/enrollment",
+  "education-school-classes": "/portal/education-and-courses/school-campus/classes",
+  "education-school-grades": "/portal/education-and-courses/school-campus/grades",
+  "education-school-attendance": "/portal/education-and-courses/school-campus/attendance",
+
+  "education-bootcamp-dashboard": "/portal/education-and-courses/bootcamp/dashboard",
+  "education-bootcamp-lms": "/portal/education-and-courses/bootcamp/lms",
+  "education-bootcamp-projects": "/portal/education-and-courses/bootcamp/projects",
+  "education-bootcamp-cohorts": "/portal/education-and-courses/bootcamp/cohorts",
+  "education-bootcamp-mentorship": "/portal/education-and-courses/bootcamp/mentorship",
+
+  "education-tutoring-dashboard": "/portal/education-and-courses/tutoring/dashboard",
+  "education-tutoring-schedules": "/portal/education-and-courses/tutoring/schedules",
+  "education-tutoring-attendance": "/portal/education-and-courses/tutoring/attendance",
+  "education-tutoring-invoicing": "/portal/education-and-courses/tutoring/invoicing",
+  "education-tutoring-reports": "/portal/education-and-courses/tutoring/reports",
+
+  "education-language-dashboard": "/portal/education-and-courses/language-course/dashboard",
+  "education-language-classes": "/portal/education-and-courses/language-course/classes",
+  "education-language-attendance": "/portal/education-and-courses/language-course/attendance",
+  "education-language-exams": "/portal/education-and-courses/language-course/exams",
+  "education-language-certificates": "/portal/education-and-courses/language-course/certificates",
+
+  "education-training-dashboard": "/portal/education-and-courses/training-center/dashboard",
+  "education-training-trainings": "/portal/education-and-courses/training-center/trainings",
+  "education-training-trainees": "/portal/education-and-courses/training-center/trainees",
+  "education-training-certificates": "/portal/education-and-courses/training-center/certificates",
+  "education-training-skill-tracking": "/portal/education-and-courses/training-center/skill-tracking",
+
   "education-settings": "/portal/education-and-courses/settings"
 };

@@ -2,27 +2,18 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  BadgePercent,
-  BarChart3,
   CalendarClock,
-  ChefHat,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
-  CreditCard,
-  Factory,
   Gift,
-  Package,
-  Plus,
   RefreshCcw,
   Search,
   ReceiptText,
-  Store,
   X,
-  Truck,
   TrendingUp,
-  Users,
-  WalletCards,
+  BarChart3,
+  Plus,
 } from "lucide-react";
 import { RoundedSelect } from "@/components/portal/ui";
 import type { LucideIcon } from "lucide-react";
@@ -31,17 +22,6 @@ import { apiFetch } from "@/lib/api";
 type ModuleKey =
   | "loyalty"
   | "shift-closing"
-  | "split-bill"
-  | "batch-stock"
-  | "waste-report"
-  | "order-hub"
-  | "multi-brand"
-  | "delivery-integration"
-  | "delivery-status"
-  | "tenant-management"
-  | "tenant-settlement"
-  | "promo-rules"
-  | "admin-tenant-dashboard"
   | "order-history";
 
 type OrderItem = {
@@ -88,41 +68,9 @@ type Shift = {
   orderCount?: number;
 };
 
-type Ingredient = { id: string; name: string; unit: string; currentStock: number; minStockAlert: number };
-type StockLog = {
-  id: string;
-  ingredientId?: string | null;
-  productId?: string | null;
-  changeAmount: number;
-  finalStock: number;
-  movementType: string;
-  reason: string;
-  notes?: string | null;
-  createdAt: string;
-};
-type CatalogCategory = { id: string; name: string; color?: string | null };
-type CatalogProduct = { id: string; categoryId: string; name: string; price: number; isAvailable?: boolean };
-type Catalog = { categories: CatalogCategory[]; products: CatalogProduct[] };
-
 type DataState = {
   orders: PosOrder[];
   shifts: Shift[];
-  ingredients: Ingredient[];
-  stockLogs: StockLog[];
-  catalog: Catalog;
-};
-
-type PromoRule = { id: string; name: string; tenant: string; type: string; status: string; period?: string };
-type DeliveryIntegration = { id: string; channel: string; status: string; menuMapped: number; notes: string };
-type DeliveryStatus = { id: string; invoiceNumber: string; channel: string; kitchenStatus: string; fulfillment: string; etaMinutes: number; createdAt: string };
-type FoodCourtTenant = { id: string; name: string; status: string; commission: number; categoryName?: string | null };
-type TenantSettlement = { id: string; tenantId: string; tenantName: string; status: string; commission: number; sales: number; settlement: number; period: string };
-type OperationsSnapshot = {
-  promoRules: PromoRule[];
-  deliveryIntegrations: DeliveryIntegration[];
-  deliveryStatuses: DeliveryStatus[];
-  foodCourtTenants: FoodCourtTenant[];
-  tenantSettlements: TenantSettlement[];
 };
 
 const pageSizeOptions = [5, 10, 20];
@@ -130,50 +78,16 @@ const pageSizeOptions = [5, 10, 20];
 const moduleMeta: Record<ModuleKey, { title: string; eyebrow: string; caption: string; icon: LucideIcon; primary: string; secondary: string }> = {
   loyalty: { title: "Loyalty & Promo", eyebrow: "Cafe growth", caption: "Kelola campaign, voucher, dan member summary untuk transaksi POS.", icon: Gift, primary: "Campaign aktif", secondary: "Voucher terpakai" },
   "shift-closing": { title: "Shift & Closing", eyebrow: "Cashier control", caption: "Buka shift, pantau transaksi kasir, dan tutup closing harian.", icon: CalendarClock, primary: "Shift terbuka", secondary: "Cash system" },
-  "split-bill": { title: "Split Bill", eyebrow: "Restaurant payment", caption: "Pecah tagihan transaksi restoran per tamu atau grup pembayaran.", icon: CreditCard, primary: "Tagihan aktif", secondary: "Avg split" },
-  "batch-stock": { title: "Batch Stock", eyebrow: "Bakery production", caption: "Pantau batch produksi, display stock, dan tanggal produksi produk bakery.", icon: Factory, primary: "Batch aktif", secondary: "Display stock" },
-  "waste-report": { title: "Waste Report", eyebrow: "Bakery waste", caption: "Catat waste bahan/produk dan lihat riwayat stok keluar karena waste.", icon: Package, primary: "Waste hari ini", secondary: "Item terdampak" },
-  "order-hub": { title: "Order Hub", eyebrow: "Cloud kitchen", caption: "Pantau pesanan multi-channel dari POS manual dan channel delivery.", icon: ClipboardList, primary: "Order masuk", secondary: "Channel aktif" },
-  "multi-brand": { title: "Multi-Brand Menu", eyebrow: "Cloud kitchen", caption: "Kelola mapping brand, kategori, dan menu untuk dapur multi-brand.", icon: Store, primary: "Brand aktif", secondary: "Menu live" },
-  "delivery-integration": { title: "Delivery Integrations", eyebrow: "Aggregator", caption: "Status koneksi channel delivery dan readiness integrasi aggregator.", icon: Truck, primary: "Connected", secondary: "Pending map" },
-  "delivery-status": { title: "Delivery Status", eyebrow: "Fulfillment", caption: "Pantau pickup, driver, ETA, dan status pengiriman pesanan.", icon: Truck, primary: "On delivery", secondary: "Avg ETA" },
-  "tenant-management": { title: "Tenant Management", eyebrow: "Food court", caption: "Kelola tenant food court, kategori, commission, dan status operasional.", icon: Users, primary: "Tenant aktif", secondary: "Avg commission" },
-  "tenant-settlement": { title: "Tenant Settlement", eyebrow: "Food court", caption: "Rekap settlement tenant berdasarkan transaksi dan pembagian revenue.", icon: WalletCards, primary: "Settlement", secondary: "Tenant paid" },
-  "promo-rules": { title: "Promo Rules", eyebrow: "Food court", caption: "Atur promo per tenant dan periode campaign.", icon: BadgePercent, primary: "Promo aktif", secondary: "Tenant ikut" },
   "order-history": { title: "Riwayat Pesanan", eyebrow: "Customer Orders", caption: "Pantau daftar pesanan, riwayat pembayaran, dan struk/invoice pelanggan.", icon: ReceiptText, primary: "Total Pesanan", secondary: "Total Nilai" },
-  "admin-tenant-dashboard": { title: "Admin Tenant Dashboard", eyebrow: "Food court", caption: "Pantau performa tenant, settlement, dan promo dari satu dashboard.", icon: BarChart3, primary: "Tenant sales", secondary: "Top tenant" },
 };
 
 const emptyData: DataState = {
   orders: [],
   shifts: [],
-  ingredients: [],
-  stockLogs: [],
-  catalog: { categories: [], products: [] },
-};
-
-const emptyOperations: OperationsSnapshot = {
-  promoRules: [],
-  deliveryIntegrations: [],
-  deliveryStatuses: [],
-  foodCourtTenants: [],
-  tenantSettlements: [],
 };
 
 function rupiah(value: number) {
   return `Rp${Math.round(value).toLocaleString("id-ID")}`;
-}
-
-function getChannel(order: PosOrder) {
-  const channels = ["POS", "GrabFood", "GoFood", "ShopeeFood"];
-  const seed = order.invoiceNumber.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return channels[seed % channels.length];
-}
-
-function getTenantName(value: string) {
-  const tenants = ["Tenant Sate Nusantara", "Tenant Kopi Sudut", "Tenant Bakmi Kota", "Tenant Dapur Padang"];
-  const seed = value.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return tenants[seed % tenants.length];
 }
 
 function paginate<T>(rows: T[], page: number, pageSize: number) {
@@ -201,7 +115,6 @@ function Pagination({ page, totalPages, totalRows, pageSize, setPage }: { page: 
 export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey: ModuleKey; subIndustryName: string }) {
   const meta = moduleMeta[moduleKey];
   const [data, setData] = useState<DataState>(emptyData);
-  const [operations, setOperations] = useState<OperationsSnapshot>(emptyOperations);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
@@ -210,9 +123,6 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [shiftCash, setShiftCash] = useState("500000");
-  const [wasteAmount, setWasteAmount] = useState("");
-  const [selectedIngredient, setSelectedIngredient] = useState("");
-  const [promoForm, setPromoForm] = useState({ name: "", tenant: "", type: "" });
   const [selectedOrder, setSelectedOrder] = useState<PosOrder | null>(null);
   const [settlementCash, setSettlementCash] = useState("");
 
@@ -220,16 +130,11 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
     setLoading(true);
     setError("");
     try {
-      const [orders, shifts, ingredients, stockLogs, catalog, operationsSnapshot] = await Promise.all([
+      const [orders, shifts] = await Promise.all([
         apiFetch<PosOrder[]>("/fnb/pos/orders"),
         apiFetch<Shift[]>("/fnb/pos/shifts"),
-        apiFetch<Ingredient[]>("/fnb/pos/ingredients"),
-        apiFetch<StockLog[]>("/fnb/pos/stock-logs"),
-        apiFetch<Catalog>("/fnb/pos/catalog?scope=management"),
-        apiFetch<OperationsSnapshot>("/fnb/operations/snapshot"),
       ]);
-      setData({ orders, shifts, ingredients, stockLogs, catalog });
-      setOperations(operationsSnapshot);
+      setData({ orders, shifts });
     } catch (event) {
       setError(event instanceof Error ? event.message : "Gagal memuat data F&B dari backend.");
     } finally {
@@ -243,22 +148,10 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
 
   const activeShift = data.shifts.find((shift) => shift.status === "OPEN");
   const revenue = data.orders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const wasteLogs = data.stockLogs.filter((log) => log.reason === "WASTE");
-  const settlements = operations.tenantSettlements;
-  const tenants = operations.foodCourtTenants;
 
   const rows = useMemo(() => {
     if (moduleKey === "shift-closing") {
       return data.shifts.map((shift) => ({ id: shift.id, cells: [shift.cashierId, shift.status, new Date(shift.startTime).toLocaleString("id-ID"), shift.endTime ? new Date(shift.endTime).toLocaleString("id-ID") : "-", rupiah(shift.initialCash), rupiah(shift.finalCashSystem), String(shift.orderCount ?? data.orders.filter((order) => order.shiftId === shift.id).length)] }));
-    }
-    if (moduleKey === "split-bill") {
-      return data.orders.map((order) => ({ id: order.id, cells: [order.invoiceNumber, order.status, order.items.map((item) => `${item.quantity}x ${item.product?.name ?? "Menu"}`).join(", "), rupiah(order.totalAmount), "2 tamu", rupiah(order.totalAmount / 2)] }));
-    }
-    if (moduleKey === "waste-report") {
-      return wasteLogs.map((log) => ({ id: log.id, cells: [new Date(log.createdAt).toLocaleString("id-ID"), data.ingredients.find((item) => item.id === log.ingredientId)?.name ?? "Produk", String(log.changeAmount), String(log.finalStock), log.notes ?? "Waste produksi"] }));
-    }
-    if (moduleKey === "batch-stock") {
-      return data.catalog.products.map((product, index) => ({ id: product.id, cells: [`BATCH-${String(index + 1).padStart(3, "0")}`, product.name, data.catalog.categories.find((category) => category.id === product.categoryId)?.name ?? "Kategori", `${24 + index * 8} pcs`, `${6 + index} pcs`, index % 2 ? "Display" : "Produksi"] }));
     }
     if (moduleKey === "order-history") {
       return data.orders.map((order) => {
@@ -273,29 +166,8 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
         };
       });
     }
-    if (moduleKey === "order-hub" || moduleKey === "delivery-status") {
-      if (moduleKey === "delivery-status") {
-        return operations.deliveryStatuses.map((status) => ({ id: status.id, cells: [status.invoiceNumber, status.channel, status.kitchenStatus, status.fulfillment, `${status.etaMinutes} menit`, new Date(status.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })] }));
-      }
-      return data.orders.map((order) => ({ id: order.id, cells: [order.invoiceNumber, getChannel(order), order.status, order.paymentMethod, rupiah(order.totalAmount), new Date(order.createdAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })] }));
-    }
-    if (moduleKey === "multi-brand") {
-      return data.catalog.categories.map((category, index) => ({ id: category.id, cells: [category.name, `${data.catalog.products.filter((product) => product.categoryId === category.id).length} menu`, index % 2 ? "Delivery only" : "Dine-in + delivery", index % 2 ? "Sync pending" : "Live"] }));
-    }
-    if (moduleKey === "delivery-integration") {
-      return operations.deliveryIntegrations.map((integration) => ({ id: integration.id, cells: [integration.channel, integration.status, `${integration.menuMapped} menu mapped`, integration.notes] }));
-    }
-    if (moduleKey === "tenant-management" || moduleKey === "tenant-settlement" || moduleKey === "admin-tenant-dashboard") {
-      if (moduleKey === "tenant-management") {
-        return tenants.map((tenant) => ({ id: tenant.id, cells: [tenant.name, tenant.status, `${tenant.commission}%`, tenant.categoryName ?? "-", "-"] }));
-      }
-      return settlements.map((settlement) => ({ id: settlement.id, cells: [settlement.tenantName, settlement.status, `${settlement.commission}%`, rupiah(settlement.sales), rupiah(settlement.settlement)] }));
-    }
-    if (moduleKey === "promo-rules") {
-      return operations.promoRules.map((promo) => ({ id: promo.id, cells: [promo.name, promo.tenant, promo.type, promo.status, promo.period ?? "-"] }));
-    }
-    return operations.promoRules.map((promo) => ({ id: promo.id, cells: [promo.name, promo.tenant, promo.type, promo.status, promo.period ?? "-"] }));
-  }, [data, moduleKey, operations, settlements, tenants, wasteLogs]);
+    return [];
+  }, [data, moduleKey]);
 
   const filteredRows = rows.filter((row) => {
     const haystack = row.cells.join(" ").toLowerCase();
@@ -307,29 +179,13 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
 
   const headers = moduleKey === "shift-closing"
     ? ["Kasir", "Status", "Mulai", "Selesai", "Modal", "Cash System", "Order"]
-    : moduleKey === "split-bill"
-      ? ["Invoice", "Status", "Item", "Total", "Split", "Per Tamu"]
-      : moduleKey === "waste-report"
-        ? ["Waktu", "Bahan/Produk", "Qty", "Stok Akhir", "Catatan"]
-        : moduleKey === "batch-stock"
-          ? ["Batch", "Produk", "Kategori", "Produksi", "Display", "Status"]
-          : moduleKey === "order-history"
-            ? ["Invoice", "Waktu Order", "Tipe", "Waktu Reservasi", "Status Dapur", "Metode Bayar", "Status Bayar", "Jumlah Item", "Total Pembayaran"]
-            : moduleKey === "order-hub" || moduleKey === "delivery-status"
-            ? ["Invoice", "Channel", "Kitchen", "Fulfillment", "Nilai/ETA", "Jam"]
-            : moduleKey === "multi-brand"
-              ? ["Brand/Kategori", "Menu", "Mode", "Status"]
-              : moduleKey === "delivery-integration"
-                ? ["Channel", "Status", "Menu Mapping", "Catatan"]
-                : moduleKey.includes("tenant") || moduleKey === "admin-tenant-dashboard"
-                  ? ["Tenant", "Status", "Commission", "Sales", "Settlement"]
-                  : moduleKey === "promo-rules"
-                    ? ["Promo", "Tenant", "Tipe", "Status", "Periode"]
-                    : ["Program", "Audiens", "Benefit", "Status", "Impact"];
+    : moduleKey === "order-history"
+      ? ["Invoice", "Waktu Order", "Tipe", "Waktu Reservasi", "Status Dapur", "Metode Bayar", "Status Bayar", "Jumlah Item", "Total Pembayaran"]
+      : ["Program", "Audiens", "Benefit", "Status", "Impact"];
 
   const kpis = [
-    { label: meta.primary, value: moduleKey === "shift-closing" ? String(activeShift ? 1 : 0) : moduleKey.includes("tenant") ? String(tenants.length) : moduleKey === "waste-report" ? String(wasteLogs.length) : String(filteredRows.length), icon: meta.icon, delta: "+15%", caption: "vs minggu lalu" },
-    { label: meta.secondary, value: moduleKey === "shift-closing" ? rupiah(activeShift?.finalCashSystem ?? revenue) : moduleKey === "delivery-status" ? `${Math.round(operations.deliveryStatuses.reduce((sum, row) => sum + row.etaMinutes, 0) / Math.max(1, operations.deliveryStatuses.length))} menit` : moduleKey.includes("settlement") ? rupiah(settlements.reduce((sum, settlement) => sum + settlement.settlement, 0)) : moduleKey === "promo-rules" ? String(new Set(operations.promoRules.map((row) => row.tenant)).size) : rupiah(revenue), icon: BarChart3, delta: "+8.2%", caption: "vs minggu lalu" },
+    { label: meta.primary, value: moduleKey === "shift-closing" ? String(activeShift ? 1 : 0) : String(filteredRows.length), icon: meta.icon, delta: "+15%", caption: "vs minggu lalu" },
+    { label: meta.secondary, value: moduleKey === "shift-closing" ? rupiah(activeShift?.finalCashSystem ?? revenue) : rupiah(revenue), icon: BarChart3, delta: "+8.2%", caption: "vs minggu lalu" },
     { label: "Order linked", value: String(data.orders.length), icon: ClipboardList, delta: "Aktif", caption: "hari ini" },
   ];
 
@@ -346,23 +202,6 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
   const closeShift = async () => {
     if (!activeShift) return;
     await apiFetch(`/fnb/pos/shifts/${activeShift.id}/close`, { method: "PATCH", body: JSON.stringify({ finalCashActual: Number(shiftCash), notes: "Closing via portal" }) });
-    await loadData();
-    setModalOpen(false);
-  };
-
-  const saveWaste = async () => {
-    const ingredientId = selectedIngredient || data.ingredients[0]?.id;
-    if (!ingredientId) return;
-    await apiFetch("/fnb/pos/stock-adjustments", { method: "POST", body: JSON.stringify({ ingredientId, amount: -Math.abs(Number(wasteAmount || 0)), reason: "WASTE", notes: "Waste report portal" }) });
-    setWasteAmount("");
-    await loadData();
-    setModalOpen(false);
-  };
-
-  const savePromo = async () => {
-    if (!promoForm.name.trim()) return;
-    await apiFetch("/fnb/operations/promo-rules", { method: "POST", body: JSON.stringify(promoForm) });
-    setPromoForm({ name: "", tenant: "", type: "" });
     await loadData();
     setModalOpen(false);
   };
@@ -412,9 +251,9 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
             <button onClick={loadData} type="button" className="inline-flex h-10 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-xs font-black text-[#172033] sm:h-11 sm:text-sm">
               <RefreshCcw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
             </button>
-            {["shift-closing", "waste-report", "promo-rules"].includes(moduleKey) ? (
+            {moduleKey === "shift-closing" ? (
               <button onClick={() => setModalOpen(true)} type="button" className="inline-flex h-10 items-center gap-2 rounded-full bg-[var(--portal-primary)] px-4 text-xs font-black text-[var(--portal-on-primary)] sm:h-11 sm:text-sm">
-                <Plus className="h-4 w-4" /> {moduleKey === "shift-closing" ? (activeShift ? "Tutup shift" : "Buka shift") : moduleKey === "waste-report" ? "Catat waste" : "Tambah promo"}
+                <Plus className="h-4 w-4" /> {activeShift ? "Tutup shift" : "Buka shift"}
               </button>
             ) : null}
           </div>
@@ -456,7 +295,6 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
               <option value="all">Semua status</option>
               <option value="aktif">Aktif</option>
             <option value="paid">Paid</option>
-            <option value="connected">Connected</option>
             <option value="open">Open</option>
           </RoundedSelect>
           <RoundedSelect value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }} className="w-full text-xs sm:text-sm">
@@ -580,7 +418,7 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
           <div className="max-h-[92dvh] w-full max-w-md overflow-y-auto rounded-[18px] bg-white p-4 shadow-2xl sm:rounded-[24px] sm:p-6">
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-lg font-black text-[#172033]">{moduleKey === "shift-closing" ? "Shift kasir" : moduleKey === "waste-report" ? "Catat waste" : "Tambah promo"}</h3>
+                <h3 className="text-lg font-black text-[#172033]">{moduleKey === "shift-closing" ? "Shift kasir" : "Tambah promo"}</h3>
                 <p className="mt-1 text-sm font-bold text-slate-500">{meta.title}</p>
               </div>
               <button onClick={() => setModalOpen(false)} type="button" className="grid h-9 w-9 place-items-center rounded-full bg-slate-100"><X className="h-4 w-4" /></button>
@@ -590,23 +428,7 @@ export function FnbOperationsLayout({ moduleKey, subIndustryName }: { moduleKey:
                 <input value={shiftCash} onChange={(event) => setShiftCash(event.target.value)} type="number" className="w-full rounded-[16px] border border-slate-200 bg-slate-50 p-3 text-sm font-bold outline-none" placeholder={activeShift ? "Cash aktual closing" : "Modal awal shift"} />
                 <button onClick={activeShift ? closeShift : openShift} type="button" className="min-h-[42px] w-full rounded-full bg-[var(--portal-primary)] px-5 py-2.5 text-sm font-black text-[var(--portal-on-primary)] sm:py-3">{activeShift ? "Simpan closing" : "Buka shift"}</button>
               </div>
-            ) : moduleKey === "waste-report" ? (
-              <div className="space-y-4">
-                <RoundedSelect value={selectedIngredient} onChange={(event) => setSelectedIngredient(event.target.value)} className="w-full text-sm">
-                  <option value="">Pilih bahan baku...</option>
-                  {data.ingredients.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
-                </RoundedSelect>
-                <input value={wasteAmount} onChange={(event) => setWasteAmount(event.target.value)} type="number" className="w-full rounded-[16px] border border-slate-200 bg-slate-50 p-3 text-sm font-bold outline-none" placeholder="Jumlah waste" />
-                <button onClick={saveWaste} type="button" className="min-h-[42px] w-full rounded-full bg-[var(--portal-primary)] px-5 py-2.5 text-sm font-black text-[var(--portal-on-primary)] sm:py-3">Simpan waste</button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <input value={promoForm.name} onChange={(event) => setPromoForm((value) => ({ ...value, name: event.target.value }))} className="w-full rounded-[16px] border border-slate-200 bg-slate-50 p-3 text-sm font-bold outline-none" placeholder="Nama promo" />
-                <input value={promoForm.tenant} onChange={(event) => setPromoForm((value) => ({ ...value, tenant: event.target.value }))} className="w-full rounded-[16px] border border-slate-200 bg-slate-50 p-3 text-sm font-bold outline-none" placeholder="Tenant" />
-                <input value={promoForm.type} onChange={(event) => setPromoForm((value) => ({ ...value, type: event.target.value }))} className="w-full rounded-[16px] border border-slate-200 bg-slate-50 p-3 text-sm font-bold outline-none" placeholder="Tipe benefit" />
-                <button onClick={savePromo} type="button" className="min-h-[42px] w-full rounded-full bg-[var(--portal-primary)] px-5 py-2.5 text-sm font-black text-[var(--portal-on-primary)] sm:py-3">Simpan promo</button>
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       ) : null}
