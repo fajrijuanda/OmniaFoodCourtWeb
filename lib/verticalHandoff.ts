@@ -8,13 +8,8 @@ import {
   getStoredDemoRole,
   getStoredHrisTier,
   getStoredUser,
-  setStoredAccessToken,
-  setStoredActiveTenantId,
-  setStoredActiveBranchId,
-  setStoredBranchScope,
-  setStoredDemoRole,
-  setStoredHrisTier,
-  setStoredUser,
+  persistAuthSession,
+  persistBranchContext,
 } from "@/lib/mobile/session";
 
 type Vertical = "cafe" | "restaurant" | "bakery" | "cloud-kitchen" | "food-court" | "hris" | "retail" | "clinic";
@@ -91,13 +86,18 @@ export async function consumeVerticalHandoff(encoded: string): Promise<string> {
   if (payload.expiresAt < Date.now()) {
     throw new Error("Sesi handoff sudah kedaluwarsa.");
   }
-  if (payload.accessToken) setStoredAccessToken(payload.accessToken);
-  if (payload.user) setStoredUser(payload.user);
-  if (payload.tenantId) setStoredActiveTenantId(payload.tenantId);
-  if (payload.branchId) setStoredActiveBranchId(payload.branchId);
-  if (payload.branchScope) setStoredBranchScope(payload.branchScope);
-  if (payload.demoRole) setStoredDemoRole(payload.demoRole);
-  if (payload.hrisTier) setStoredHrisTier(payload.hrisTier);
+  
+  if (payload.accessToken && payload.user) {
+    await persistAuthSession({ accessToken: payload.accessToken, user: payload.user });
+  }
+  
+  if (payload.tenantId || payload.branchId || payload.branchScope) {
+    persistBranchContext({
+      tenantId: payload.tenantId,
+      branchId: payload.branchId,
+      branchScope: payload.branchScope,
+    });
+  }
   
   return payload.destinationPath || "/portal";
 }
