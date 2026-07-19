@@ -8,6 +8,13 @@ import {
   getStoredDemoRole,
   getStoredHrisTier,
   getStoredUser,
+  setStoredAccessToken,
+  setStoredActiveTenantId,
+  setStoredActiveBranchId,
+  setStoredBranchScope,
+  setStoredDemoRole,
+  setStoredHrisTier,
+  setStoredUser,
 } from "@/lib/mobile/session";
 
 type Vertical = "cafe" | "restaurant" | "bakery" | "cloud-kitchen" | "food-court" | "hris" | "retail" | "clinic";
@@ -68,4 +75,29 @@ export function buildVerticalHandoffUrl(vertical: Vertical, destinationPath: str
     destinationPath,
   });
   return `${verticalOrigins[vertical]}/auth/handoff#session=${payload}`;
+}
+
+function decodePayload(encoded: string): any {
+  let binary = window.atob(encoded.replace(/-/g, "+").replace(/_/g, "/"));
+  let bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+export async function consumeVerticalHandoff(encoded: string): Promise<string> {
+  const payload = decodePayload(encoded);
+  if (payload.expiresAt < Date.now()) {
+    throw new Error("Sesi handoff sudah kedaluwarsa.");
+  }
+  if (payload.accessToken) setStoredAccessToken(payload.accessToken);
+  if (payload.user) setStoredUser(payload.user);
+  if (payload.tenantId) setStoredActiveTenantId(payload.tenantId);
+  if (payload.branchId) setStoredActiveBranchId(payload.branchId);
+  if (payload.branchScope) setStoredBranchScope(payload.branchScope);
+  if (payload.demoRole) setStoredDemoRole(payload.demoRole);
+  if (payload.hrisTier) setStoredHrisTier(payload.hrisTier);
+  
+  return payload.destinationPath || "/portal";
 }
