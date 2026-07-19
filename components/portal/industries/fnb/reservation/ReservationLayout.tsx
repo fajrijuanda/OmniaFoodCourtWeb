@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FormEvent, useEffect, useMemo, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Plus, User, Clock, CheckCircle2, XCircle, Phone, Users } from "lucide-react";
 import { usePosStore } from "../store/usePosStore";
@@ -38,14 +38,14 @@ export function ReservationLayout() {
     tableId: "",
   });
 
-  const normalizeTable = (table: any): RestaurantTable => ({
+  const normalizeTable = useCallback((table: any): RestaurantTable => ({
     id: table.id,
     number: table.number ?? String(table.name ?? "").replace(/^Meja\s*/i, ""),
     capacity: table.capacity,
     status: table.status === "OCCUPIED" ? "Occupied" : table.status === "RESERVED" ? "Reserved" : "Available",
-  });
+  }), []);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setMessage("");
     try {
       const [tableRows, reservationRows] = await Promise.all([
@@ -57,11 +57,11 @@ export function ReservationLayout() {
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Gagal memuat reservasi.");
     }
-  };
+  }, [normalizeTable]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const availableTables = useMemo(
     () => tables.filter((table) => table.status === "Available" || table.id === form.tableId),

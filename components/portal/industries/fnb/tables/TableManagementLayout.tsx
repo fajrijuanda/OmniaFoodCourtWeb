@@ -35,7 +35,7 @@ export function TableManagementLayout() {
 
   useEffect(() => {
     loadTables();
-  }, []);
+  }, [loadTables]);
 
   const getPosPath = () => {
     const parts = pathname.split("/");
