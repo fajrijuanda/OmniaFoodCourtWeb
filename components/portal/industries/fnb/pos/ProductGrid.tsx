@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { PosProduct, PosCategory, PosPromoBanner } from "../store/usePosStore";
-import { Search, Star } from "lucide-react";
+import { Search, Star, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { API_BASE_URL } from "@/lib/api";
 import { Browser } from '@capacitor/browser';
@@ -219,52 +219,61 @@ export function ProductGrid({ categories, promoBanners = [], products, isLoading
                         whileTap={{ scale: 0.96 }}
                         key={product.id}
                         onClick={() => onProductClick(product)}
-                        className={`group relative flex flex-col overflow-hidden rounded-[12px] border border-slate-100 bg-white text-left shadow-sm transition hover:shadow-md lg:rounded-[20px] ${
+                        className={`group relative flex flex-col bg-transparent text-left transition ${
                           !product.isAvailable ? "opacity-50 grayscale" : ""
                         }`}
                         disabled={!product.isAvailable}
                       >
+                        {/* Image Container */}
                         <div
-                          className="flex h-24 w-full items-center justify-center bg-slate-50 sm:h-24 lg:h-32"
+                          className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-[16px] bg-slate-50 lg:rounded-[24px] shadow-sm"
                           style={{ backgroundColor: `${category?.color || "#94a3b8"}15` }}
                         >
                           {imageUrl ? (
-                            <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                            <img src={imageUrl} alt={product.name} className="h-full w-full object-contain p-2 lg:p-4" />
                           ) : (
                             <div
-                              className="grid h-9 w-9 place-items-center rounded-full text-sm font-black text-white sm:h-10 sm:w-10 lg:h-12 lg:w-12 lg:text-lg"
+                              className="grid h-10 w-10 place-items-center rounded-full text-lg font-black text-white lg:h-16 lg:w-16 lg:text-2xl"
                               style={{ backgroundColor: category?.color || "#94a3b8" }}
                             >
                               {product.name.charAt(0)}
                             </div>
                           )}
-                        </div>
-                        <div className="flex flex-1 flex-col p-2 sm:p-3 lg:p-4">
-                          <div className="mb-0.5 flex flex-wrap items-center gap-1 lg:gap-1.5 lg:mb-1">
-                            {product.isBestSeller ? (
-                              <span className="inline-flex items-center gap-0.5 rounded-full bg-orange-50 px-1 py-0.5 text-[7px] font-black uppercase text-orange-600 lg:gap-1 lg:px-1.5 lg:text-[9px]">
-                                <Star className="h-2 w-2 fill-current lg:h-2.5 lg:w-2.5" />
-                                Best
+
+                          {/* Plus Button - floating bottom right rounded squircle */}
+                          <div className="absolute bottom-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-[10px] bg-[var(--portal-primary)] text-white shadow-md transition-transform group-hover:scale-110 lg:bottom-3 lg:right-3 lg:h-9 lg:w-9 lg:rounded-[14px]">
+                            <Plus className="h-3.5 w-3.5 lg:h-5 lg:w-5" strokeWidth={3} />
+                          </div>
+
+                          {/* Top Badges */}
+                          {product.isBestSeller ? (
+                            <div className="absolute left-0 top-0 rounded-br-[14px] bg-[#f97316] px-2 py-0.5 text-[9px] font-black text-white shadow-sm lg:rounded-br-[18px] lg:px-3 lg:py-1 lg:text-[11px]">
+                              Terlaris
+                            </div>
+                          ) : null}
+                          
+                          {/* Unavailable overlay just for the image */}
+                          {!product.isAvailable && (
+                            <div className="absolute inset-0 grid place-items-center bg-white/60 backdrop-blur-[2px]">
+                              <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-black text-white lg:px-3 lg:py-1 lg:text-xs">
+                                Habis
                               </span>
-                            ) : null}
-                            <span className="text-[8px] font-black uppercase tracking-wide text-slate-400 lg:text-[10px] lg:tracking-wider">
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Text Area floating below */}
+                        <div className="flex flex-1 flex-col pt-2 lg:pt-3 px-0.5">
+                          <h3 className="line-clamp-2 text-[11px] font-bold leading-[1.25] text-[#172033] lg:text-[15px]">{product.name}</h3>
+                          <div className="mt-1 flex flex-col justify-end lg:mt-1.5">
+                            <span className="text-[9px] font-bold text-slate-400 lg:text-[11px]">
                               {category?.name || "Lainnya"}
                             </span>
-                          </div>
-                          <h3 className="line-clamp-2 text-[9.5px] font-extrabold leading-[1.15] text-[#172033] sm:text-[10.5px] lg:text-sm lg:font-black">{product.name}</h3>
-                          <div className="mt-auto pt-1 lg:pt-3">
-                            <p className="text-[11px] font-black text-[var(--portal-primary)] sm:text-[12px] lg:text-sm">
+                            <p className="mt-0.5 text-[12px] font-black text-[var(--portal-primary)] lg:text-[16px]">
                               Rp{product.price.toLocaleString("id-ID")}
                             </p>
                           </div>
                         </div>
-                        {!product.isAvailable && (
-                          <div className="absolute inset-0 grid place-items-center bg-white/60 backdrop-blur-[2px]">
-                            <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-black text-white lg:px-3 lg:py-1 lg:text-xs">
-                              Habis
-                            </span>
-                          </div>
-                        )}
                       </motion.button>
                     );
                   })}
