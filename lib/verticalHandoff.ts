@@ -14,6 +14,9 @@ import {
 
 type Vertical = "cafe" | "restaurant" | "bakery" | "cloud-kitchen" | "food-court" | "hris" | "retail" | "clinic";
 
+/** The vertical that THIS web app serves — handoff to this vertical is skipped to prevent redirect loops. */
+const CURRENT_VERTICAL: Vertical = "food-court";
+
 const verticalOrigins: Record<Vertical, string> = {
   cafe: process.env.NEXT_PUBLIC_CAFE_WEB_URL ?? "https://omnia-cafe-web.vercel.app",
   restaurant: process.env.NEXT_PUBLIC_RESTAURANT_WEB_URL ?? "https://omnia-restaurant-web.vercel.app",
@@ -33,23 +36,25 @@ function encodePayload(value: unknown) {
 }
 
 export function resolveVerticalTarget(pathname: string): { vertical: Vertical; path: string } | null {
-  if (pathname === "/portal/fnb/cafe" || pathname.startsWith("/portal/fnb/cafe/")) return { vertical: "cafe", path: pathname };
-  if (pathname === "/portal/fnb/restaurant" || pathname.startsWith("/portal/fnb/restaurant/")) return { vertical: "restaurant", path: pathname };
-  if (pathname === "/portal/fnb/bakery" || pathname.startsWith("/portal/fnb/bakery/")) return { vertical: "bakery", path: pathname };
-  if (pathname === "/portal/fnb/cloud-kitchen" || pathname.startsWith("/portal/fnb/cloud-kitchen/")) return { vertical: "cloud-kitchen", path: pathname };
-  if (pathname === "/portal/fnb/food-court" || pathname.startsWith("/portal/fnb/food-court/")) return { vertical: "food-court", path: pathname };
+  let result: { vertical: Vertical; path: string } | null = null;
 
-  if (/^\/portal\/(?:professional-services|jasa-profesional|internal-operations)\/hris(?:\/|$)/.test(pathname) || pathname === "/portal/hris" || pathname.startsWith("/portal/hris/")) {
-    return { vertical: "hris", path: pathname };
+  if (pathname === "/portal/fnb/cafe" || pathname.startsWith("/portal/fnb/cafe/")) result = { vertical: "cafe", path: pathname };
+  else if (pathname === "/portal/fnb/restaurant" || pathname.startsWith("/portal/fnb/restaurant/")) result = { vertical: "restaurant", path: pathname };
+  else if (pathname === "/portal/fnb/bakery" || pathname.startsWith("/portal/fnb/bakery/")) result = { vertical: "bakery", path: pathname };
+  else if (pathname === "/portal/fnb/cloud-kitchen" || pathname.startsWith("/portal/fnb/cloud-kitchen/")) result = { vertical: "cloud-kitchen", path: pathname };
+  else if (pathname === "/portal/fnb/food-court" || pathname.startsWith("/portal/fnb/food-court/")) result = { vertical: "food-court", path: pathname };
+  else if (/^\/portal\/(?:professional-services|jasa-profesional|internal-operations)\/hris(?:\/|$)/.test(pathname) || pathname === "/portal/hris" || pathname.startsWith("/portal/hris/")) {
+    result = { vertical: "hris", path: pathname };
+  } else if (pathname === "/portal/retail-and-stores/retail-store" || pathname.startsWith("/portal/retail-and-stores/retail-store/")) {
+    result = { vertical: "retail", path: pathname };
+  } else if (/^\/portal\/(?:healthcare|kesehatan(?:-klinik)?)\/clinic(?:\/|$)/.test(pathname) || pathname === "/portal/clinic" || pathname.startsWith("/portal/clinic/")) {
+    result = { vertical: "clinic", path: pathname };
   }
-  if (pathname === "/portal/retail-and-stores/retail-store" || pathname.startsWith("/portal/retail-and-stores/retail-store/")) {
-    return { vertical: "retail", path: pathname };
-  }
-  if (/^\/portal\/(?:healthcare|kesehatan(?:-klinik)?)\/clinic(?:\/|$)/.test(pathname) || pathname === "/portal/clinic" || pathname.startsWith("/portal/clinic/")) {
-    return { vertical: "clinic", path: pathname };
-  }
-  
-  return null;
+
+  // Don't redirect to ourselves — that causes an infinite handoff loop
+  if (result && result.vertical === CURRENT_VERTICAL) return null;
+
+  return result;
 }
 
 export function buildVerticalHandoffUrl(vertical: Vertical, destinationPath: string) {
